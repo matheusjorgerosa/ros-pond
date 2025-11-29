@@ -55,9 +55,10 @@ public:
 
         // FASE 1: EXPLORAÇÃO TOTAL
         while (rclcpp::ok()) {
+            // Busca última leitura de sensores no nó
             rclcpp::spin_some(this->get_node_base_interface());
 
-            // 1. Atualiza mapa mental
+            // Atualiza callback na ultima leitura de sensores
             update_internal_map();
 
             // 2. Lógica de Exploração (DFS)
@@ -158,7 +159,7 @@ private:
         if (cell == "b" || cell == "black" || cell == "wall" || cell == "occupied" || cell == "w") return "#";
         if (cell == "t" || cell == "target" || cell == "red" || cell == "goal" || cell == "g") return "G";
         if (cell == "r" || cell == "robot" || cell == "blue" || cell == "start") return "S";
-        return "."; // Free
+        return ".";
     }
 
     bool is_wall(std::string raw) { return normalize_cell(raw) == "#"; }
@@ -175,9 +176,6 @@ private:
             {current_pos_.x - 1, current_pos_.y}
         };
         std::string readings[] = {current_sensors_.up, current_sensors_.right, current_sensors_.down, current_sensors_.left};
-
-        // Regra de Ouro: Durante o mapeamento, priorizamos visitar células NÃO VISITADAS.
-        // Adicionamos !is_target() para tratar o alvo como parede durante a exploração.
 
         for (int i = 0; i < 4; i++) {
             if (!is_wall(readings[i]) && !is_target(readings[i]) && visited_.find(neighbors[i]) == visited_.end()) {
@@ -200,9 +198,8 @@ private:
 
             if (!is_backtrack) {
                 visited_.insert(current_pos_);
-                // Atualiza mapa mental se necessário
+
                 if (full_map_.find(current_pos_) == full_map_.end() || full_map_[current_pos_] == "G") {
-                     // Se pisamos, é livre (ou Goal, que é transitável)
                      if(full_map_[current_pos_] != "G") full_map_[current_pos_] = ".";
                 }
                 RCLCPP_INFO(this->get_logger(), "Explorando: %s", direction.c_str());
@@ -267,7 +264,7 @@ private:
 
     void execute_path(const std::vector<std::string>& commands) {
         for (const auto& cmd : commands) {
-            move_robot(cmd, true); // Usamos true para não poluir o log de "Explorando"
+            move_robot(cmd, true);
             rclcpp::sleep_for(std::chrono::milliseconds(150));
         }
         RCLCPP_INFO(this->get_logger(), "CHEGADA AO ALVO CONFIRMADA.");

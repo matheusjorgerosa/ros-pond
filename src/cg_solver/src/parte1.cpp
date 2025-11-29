@@ -8,7 +8,7 @@
 #include <set>
 #include <algorithm>
 #include <iostream>
-#include <cctype> // Para tolower
+#include <cctype>
 
 // Definição de um ponto no Grid
 struct Point {
@@ -73,7 +73,6 @@ private:
         }
 
         auto request = std::make_shared<cg_interfaces::srv::GetMap::Request>();
-        auto future = client_get_map_->async_send_request(request);
 
         if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), future) == rclcpp::FutureReturnCode::SUCCESS) {
             auto response = future.get();
@@ -92,8 +91,6 @@ private:
                     std::string raw_cell = response->occupancy_grid_flattened[index++];
                     std::string cell = to_lower(raw_cell);
                     tipos_encontrados.insert(raw_cell);
-
-                    // Baseado nos logs: [b]=Wall, [f]=Free, [r]=Robot, [t]=Target
 
                     if (cell == "r" || cell == "robot" || cell == "blue" || cell == "start") {
                         row_str += 'S'; // Start (Robot)
@@ -160,6 +157,8 @@ private:
         std::vector<std::string> cmds;
         if (!found) return cmds;
 
+        // Backtracking
+
         Point curr = goal;
         while (!(curr == start)) {
             Point prev = came_from[curr];
@@ -184,8 +183,7 @@ private:
             if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), future) != rclcpp::FutureReturnCode::SUCCESS) {
                 RCLCPP_ERROR(this->get_logger(), "Falha ao enviar comando de movimento");
             }
-            // Aumentei um pouco o delay para ficar bonito de ver na tela
-            rclcpp::sleep_for(std::chrono::milliseconds(200));
+            rclcpp::sleep_for(std::chrono::milliseconds(100));
         }
         RCLCPP_INFO(this->get_logger(), "Missão cumprida!");
     }
