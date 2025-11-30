@@ -207,3 +207,8 @@ Você precisará de pelo menos 2 terminais simultâneos:
 | :--- | :--- | :--- |
 | **Terminal 1** | `ros2 run cg maze -- --generate` | Roda o Jogo/Simulador com mapa gerado aleatoriamente |
 | **Terminal 2** | `ros2 run cg_solver parte1` **OU** `parte2` | Roda o seu código de controle |
+
+
+# Video
+
+Acesse o vídeo [aqui](https://drive.google.com/file/d/1Z7cnPW_pn_STt-sLLercXmn6gcvtnfKY/view?usp=sharing).
